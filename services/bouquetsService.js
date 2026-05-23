@@ -1,13 +1,24 @@
 import Bouquet from '../models/Bouquet.js';
 import HttpError from '../helpers/HttpError.js';
 
-export const getAll = async (filter = {}) => {
+export const getAll = async (filter = {}, options = {}) => {
   const where = {};
   if (filter.favorite !== undefined) {
     where.favorite = filter.favorite;
   }
-  return Bouquet.findAll({ where, order: [['createdAt', 'DESC']] });
+
+  const { page = 1, limit = 8 } = options;
+
+  const offset = (page - 1) * limit;
+
+  return Bouquet.findAll({
+    where,
+    order: [["createdAt", "DESC"]],
+    limit: limit,
+    offset: offset,
+  });
 };
+
 
 export const getById = async (id) => {
   const bouquet = await Bouquet.findByPk(id);

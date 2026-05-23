@@ -13,14 +13,22 @@ export const getAllBouquets = async (req, res, next) => {
   try {
     const filter = {};
     if (req.query.favorite !== undefined) {
-      filter.favorite = req.query.favorite === 'true';
+      filter.favorite = req.query.favorite === "true";
     }
-    const bouquets = await bouquetsService.getAll(filter);
+
+    const { _page = 1, _limit = 8 } = req.query;
+
+    const bouquets = await bouquetsService.getAll(filter, {
+      page: parseInt(_page, 10),
+      limit: parseInt(_limit, 10),
+    });
+
     res.json(bouquets);
   } catch (error) {
     next(error);
   }
 };
+
 
 export const getBouquetById = async (req, res, next) => {
   try {
