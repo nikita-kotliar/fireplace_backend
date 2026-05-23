@@ -173,44 +173,6 @@
           "404": { "$ref": "#/components/responses/NotFound" }
         }
       }
-    },
-    "/api/bouquets/{id}/photo": {
-      "patch": {
-        "tags": ["Bouquets"],
-        "summary": "Upload a photo for a bouquet",
-        "operationId": "uploadBouquetPhoto",
-        "parameters": [{ "$ref": "#/components/parameters/BouquetId" }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": ["photo"],
-                "properties": {
-                  "photo": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "Image file (jpeg, jpg, png, webp, gif), max 5MB"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bouquet with updated photoURL",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Bouquet" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
     }
   },
   "components": {
