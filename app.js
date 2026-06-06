@@ -7,6 +7,8 @@ import swaggerUi from 'swagger-ui-express';
 import { createRequire } from 'module';
 
 import bouquetsRouter from './routes/api/bouquets.js';
+import reviewsRouter from './routes/api/reviews.js';
+import ordersRouter from './routes/api/orders.js';
 import notFound from './middleware/notFound.js';
 import errorHandler from './middleware/errorHandler.js';
 
@@ -29,6 +31,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/bouquets', bouquetsRouter);
+app.use('/api/reviews', reviewsRouter);
+app.use('/api/orders', ordersRouter);
 
 app.use(notFound);
 app.use(errorHandler);

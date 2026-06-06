@@ -2,6 +2,8 @@ import 'dotenv/config';
 import app from './app.js';
 import sequelize from './db/sequelize.js';
 import './models/Bouquet.js';
+import './models/Review.js';
+import './models/Order.js';
 
 const PORT = process.env.PORT || 3000;
 
