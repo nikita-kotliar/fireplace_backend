@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Flower Shop – Bouquets API",
+    "title": "Flower Shop - Bouquets API",
     "description": "REST API for managing flower bouquets collection",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
@@ -13,7 +13,11 @@
     { "url": "https://api.flowershop.com", "description": "API server" }
   ],
   "security": [],
-  "tags": [{ "name": "Bouquets", "description": "Operations on bouquets" }],
+  "tags": [
+    { "name": "Bouquets", "description": "Operations on bouquets" },
+    { "name": "Reviews", "description": "Customer reviews" },
+    { "name": "Orders", "description": "Customer orders" }
+  ],
   "paths": {
     "/api/bouquets": {
       "get": {
@@ -27,6 +31,20 @@
             "required": false,
             "schema": { "type": "boolean" },
             "description": "Filter by favorite status"
+          },
+          {
+            "name": "_page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
+          },
+          {
+            "name": "_limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 8 },
+            "description": "Items per page"
           }
         ],
         "responses": {
@@ -173,6 +191,128 @@
           "404": { "$ref": "#/components/responses/NotFound" }
         }
       }
+    },
+    "/api/bouquets/{id}/photo": {
+      "patch": {
+        "tags": ["Bouquets"],
+        "summary": "Upload a photo for a bouquet",
+        "operationId": "uploadBouquetPhoto",
+        "parameters": [{ "$ref": "#/components/parameters/BouquetId" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["photo"],
+                "properties": {
+                  "photo": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated bouquet with new photoURL",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Bouquet" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/reviews": {
+      "get": {
+        "tags": ["Reviews"],
+        "summary": "Get all reviews",
+        "operationId": "getReviews",
+        "responses": {
+          "200": {
+            "description": "List of reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Review" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Create a review",
+        "operationId": "createReview",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReviewCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created review",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Review" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get all orders",
+        "operationId": "getOrders",
+        "responses": {
+          "200": {
+            "description": "List of orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Order" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Place an order",
+        "operationId": "createOrder",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created order",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
     }
   },
   "components": {
@@ -240,6 +380,94 @@
             "example": "https://example.com/photo.jpg"
           },
           "favorite": { "type": "boolean", "example": true }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "text": {
+            "type": "string",
+            "example": "Absolutely stunning bouquet!"
+          },
+          "author": { "type": "string", "example": "Daniel R." },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ReviewCreate": {
+        "type": "object",
+        "required": ["text", "author"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 1000,
+            "example": "Absolutely stunning bouquet!"
+          },
+          "author": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Daniel R."
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "bouquetId": { "type": "integer", "example": 3 },
+          "bouquetTitle": { "type": "string", "example": "Peach Meadow" },
+          "bouquetPrice": { "type": "integer", "example": 55 },
+          "quantity": { "type": "integer", "example": 2 },
+          "total": { "type": "string", "example": "$110.00" },
+          "customerName": { "type": "string", "example": "Ann" },
+          "customerPhone": { "type": "string", "example": "+1 (555) 123-4567" },
+          "customerAddress": {
+            "type": "string",
+            "example": "456 Floral Ave, Sydney NSW 2000 AU"
+          },
+          "customerComment": {
+            "type": "string",
+            "example": "Please add a greeting card."
+          },
+          "status": { "type": "string", "example": "pending" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "OrderCreate": {
+        "type": "object",
+        "required": ["bouquet", "quantity", "total", "customer"],
+        "properties": {
+          "bouquet": {
+            "type": "object",
+            "required": ["id", "title", "price"],
+            "properties": {
+              "id": { "type": "integer", "example": 3 },
+              "title": { "type": "string", "example": "Peach Meadow" },
+              "price": { "type": "integer", "example": 55 }
+            }
+          },
+          "quantity": { "type": "integer", "minimum": 1, "example": 2 },
+          "total": { "type": "string", "example": "$110.00" },
+          "customer": {
+            "type": "object",
+            "required": ["name", "phone", "address"],
+            "properties": {
+              "name": { "type": "string", "example": "Ann" },
+              "phone": { "type": "string", "example": "+1 (555) 123-4567" },
+              "address": {
+                "type": "string",
+                "example": "456 Floral Ave, Sydney NSW 2000 AU"
+              },
+              "comment": {
+                "type": "string",
+                "example": "Please add a greeting card."
+              }
+            }
+          }
         }
       }
     },
